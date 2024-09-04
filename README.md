@@ -3,10 +3,10 @@
 We highly respect reproducible research, so we try to provide the simulation codes for our submitted papers. Please refer to the following paper for more details.
 
 @ARTICLE{10659326,
-  author={Wang, Ji and Xiao, Jian and Zou, Yixuan and Xie, Wenwu and Liu, Yuanwei},
-  journal={IEEE Transactions on Wireless Communications}, 
-  title={Wideband Beamforming for RIS Assisted Near-Field Communications}, 
-  year={2024},
+  author={Wang, Ji and Xiao, Jian and Zou, Yixuan and Xie, Wenwu and Liu, Yuanwei},,<br/>
+  journal={IEEE Transactions on Wireless Communications}, ,<br/>
+  title={Wideband Beamforming for RIS Assisted Near-Field Communications}, ,<br/>
+  year={2024},,<br/>
   doi={10.1109/TWC.2024.3447570}}
 
 How to use this simulation code package?
