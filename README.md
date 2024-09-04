@@ -9,35 +9,30 @@ We highly respect reproducible research, so we try to provide the simulation cod
   year={2024},,<br/>
   doi={10.1109/TWC.2024.3447570}}
 
-How to use this simulation code package?
 
- The deatailed description of each script is listed as follows.
+### The deatailed description of each script is listed as follows.
 
-* main.py: the main function of the MTN model.<br/>
-* main_STN.py: the main function of the STN model.<br/>
-* MTN.py: the proposed multi-task network architecture.<br/>
-* STN.py: the proposed single-task network architecture.<br/>
-* MDSR.py: a baseline network architecture based on the MDSR model.<br/>
-* DRSN.py: a baseline network architecture based on the DRSN model.<br/>
-* Benchmarks.py: A preliminary version based on the Transformer model.<br/>
+* main_RIS_WB_SNR.py: the main function of the proposed E2E model.<br/>
+* RIS_SUB_DIR_MIMO_NFWB_SNR.py: the SA-RIS architecture.<br/>
+* RIS_TDD_DIR_MIMO_NFWB_SNR.py: the TTD-RIS architecture.<br/>
+* RIS_SUB_DIR_MIMO_NFWB_SNR_R1.py: the SA-RIS architecture with the quantified phase shift.<br/>
+* RIS_TDD_DIR_MIMO_NFWB_SNR_R1.py: the TTD-RIS architecture with the quantified phase shift.<br/>
+* PolarizedSelfAttention.py: polarized attention module.<br/>
+* GFNet.py: learnable DFT module.<br/>
+* Transformer_model.py: transformer module.<br/>
+* NFBF_RIS_R3.py: channel generation functions.<br/>
 
-### 1.Data Generation and Download
 
-We have provided the paired samples in the following link, where the LS-based pre-estimation processing and data normalization have been completed.
+### How to use this simulation code package?
 
-DOI Link: https://dx.doi.org/10.21227/3c2t-dz81
+1. You can run the “main_RIS_WB_SNR.py” script to obtain the desired results by switching the different beamforming models.
+2. You can run the "NFBF_RIS_R3.py" script to generate a common test dataset at first so that provides a fairness performance comparision among various schemes.
+3. When you call the "RIS_SUB_DIR_MIMO_NFWB_SNR_R1.py" script for evaluating the beamforming performance under the case of discrete phase shift, you shoud pretrain a infinite beamforming model with the "RIS_SUB_DIR_MIMO_NFWB_SNR_R1.py" script at first.
+4. In the training stage, the different hyper-parameters setup will result in slight difference for final beamforming perfromance, e.g., the batchsize, the number of training epochs, and the training learning rate.
+5. Now, this codes are a preliminary version composed of a few redundant statements, we will try my best to release the clean codes and add the necessary annotations in the future.
 
-You can download the dataset and put it in the desired folder. The “LS_64_256R_6users_32pilot.mat” file includes the training and validation dataset, while the “LS_64_256R_test_6users_32pilot” file is used in the test phase.
 
-Remark: We refer to the channel modeling scheme in [1] for RIS-aided mmWave Massive MIMO systems, in which we further extend the single-user communication scenarios to the multi-user setup. Besides, we complement the NLOS channel modeling for the RIS-user link in the InH indoor office communication scenarios. 
-
-Ackonwledge: We are very grateful for the author of following reference paper. Our dataset construction code is improved based on the open-source SimRIS Channel Simulator MATLAB package [2]. 
-
-[1] E. Basar, I. Yildirim, and F. Kilinc, “Indoor and outdoor physical channel modeling and efficient positioning for reconfigurable intelligent surfaces in mmWave bands,” IEEE Trans. Commun., vol. 69, no. 12, pp. 8600-8611, Dec. 2021.
-
-[2] E. Basar, I. Yildirim, “Reconfigurable Intelligent Surfaces for Future Wireless Networks: A Channel Modeling Perspective“, IEEE Wireless Commun., vol. 28, no. 3, pp. 108–114, June 2021.
-
-### 2.The Training and Testing of LPAN/LPAN-L model
+### Ackonwledge
 
 We have integrated the model training and test code, and you can run the “main.py” file to obtain the channel estimation result of the LPAN or LPAN-L model. The detailed network model is given in the “LPAN.py” and “LPAN-L.py”.
 
