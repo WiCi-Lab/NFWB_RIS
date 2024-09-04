@@ -15,8 +15,8 @@ from einops.layers.torch import Rearrange
 from einops import rearrange
 import einops
 # from Transformer_model import *
-# from NFBF_RIS import Channel_BS_RIS_LOS, Channel_BS_RIS_NLOS, Channel_RIS_UE_NLOS, Channel_RIS_UE_LOS, batch_Channel_RIS_UE_LOS, Channel_RIS_UE_MIMO_NLOS, Channel_RIS_UE_MIMO_LOS, Channel_BS_UE_MIMO_NLOS, Channel_BS_RIS_LOS_PLA
-from NFBF_RIS_R3 import Channel_BS_RIS_NLOS, Channel_RIS_UE_MIMO_NLOS, Channel_RIS_UE_MIMO_LOS, Channel_BS_UE_MIMO_NLOS, Channel_BS_RIS_LOS_PLA
+# from RIS import *
+from NFBF_RIS import Channel_BS_RIS_LOS, Channel_BS_RIS_NLOS, Channel_RIS_UE_NLOS, Channel_RIS_UE_LOS, batch_Channel_RIS_UE_LOS, Channel_RIS_UE_MIMO_NLOS, Channel_RIS_UE_MIMO_LOS, Channel_BS_UE_MIMO_NLOS, Channel_BS_RIS_LOS_PLA
 from scipy.linalg import dft
 from GFNet import Block
 from PolarizedSelfAttention import ParallelPolarizedSelfAttention,SequentialPolarizedSelfAttention
@@ -27,8 +27,6 @@ import math
 import scipy.io as sio # mat
 
 max_time_delay = torch.tensor(5e-9)
-
-bit = 1
 
 random.seed(2023)
 
@@ -164,11 +162,8 @@ class UL_CE(nn.Module):
         self.S_analog_TDD = torch.nn.Parameter(torch.randn(L,self.Nc,self.BS_TDDs,self.RF_chain)).cuda() 
 
         # self.Phase = torch.nn.Parameter(torch.randn(L,Nc, N_ant)).cuda()   #L个时隙RIS相位
-        # self.Phase1 = torch.nn.Parameter(torch.randn(L, self.N_ant)).cuda()   #L个时隙RIS相位
-        # self.Phase2 = torch.nn.Parameter(torch.randn(L, self.N_ant)).cuda()
-        self.Phase1 = torch.nn.Parameter(torch.rand(L, self.N_ant)).cuda()   #L个时隙RIS相位
-        self.Phase2 = torch.nn.Parameter(torch.rand(L, self.N_ant)).cuda()
-        
+        self.Phase1 = torch.nn.Parameter(torch.randn(L, self.N_ant)).cuda()   #L个时隙RIS相位
+        self.Phase2 = torch.nn.Parameter(torch.randn(L, self.N_ant)).cuda()
         self.Phase_TDD = torch.nn.Parameter(torch.randn(L, self.RIS_TDDs)).cuda()
         
         self.B_quan = 2
@@ -183,9 +178,9 @@ class UL_CE(nn.Module):
         # ])
         
         
+        # self.psa = SequentialPolarizedSelfAttention(channel=self.Nc)
         self.psa = ParallelPolarizedSelfAttention(channel=self.Nc)
 
-        
         # self.QL = QuantizationLayer(self.B_quan)
         self.conv1 = conv_block1(self.Nr*self.RF_chain, 2,1,1,1)
         self.sig = nn.Sigmoid()
@@ -211,16 +206,17 @@ class UL_CE(nn.Module):
         # self.upsnr = 0
         
         train_snr = param_list1[10]
+        bit = param_list1[11]
         snr_index = random.randint(0, len(train_snr)-1)            
         self.upsnr = train_snr[snr_index]
         SNR_linear=10**(-1*self.upsnr/10.)
-        seg = (2*pi)/(2**bit)
-        data_normalized1 = 2*pi*self.Phase1
-        Phase1_bit =   torch.floor(data_normalized1/seg)* seg
-        
-        data_normalized2 = 2*pi*self.Phase2
-        Phase2_bit =   torch.floor(data_normalized2/seg)* seg
-        
+        seg = (2 * pi) / (2 ** bit)
+        data_normalized1 = 2 * pi * self.Phase1
+        Phase1_bit = torch.floor(data_normalized1 / seg) * seg
+
+        data_normalized2 = 2 * pi * self.Phase2
+        Phase2_bit = torch.floor(data_normalized2 / seg) * seg
+
 
         for l in range(L):
             # for nr in range(self.Nr):
@@ -231,13 +227,13 @@ class UL_CE(nn.Module):
 
 
             # data_normalized1 = 2*pi*(self.Phase1[l,:] - self.Phase1[l,:].min()) / (self.Phase1[l,:].max() - self.Phase1[l,:].min())
-            
+            #
             # Phase1_bit =   torch.floor(data_normalized1/seg)* seg
             # data_normalized2 = 2*pi*(self.Phase2[l,:] - self.Phase2[l,:].min()) / (self.Phase2[l,:].max() - self.Phase2[l,:].min())
             # Phase2_bit =   torch.floor(data_normalized2/seg)* seg
             
-            Theta1 = torch.exp(1j*Phase1_bit) # L,Nc, N_ant
-            Theta2 = torch.exp(1j*Phase2_bit) # L,Nc, N_ant
+            Theta1 = torch.exp(1j*Phase1_bit[l,:]) # L,Nc, N_ant
+            Theta2 = torch.exp(1j*Phase2_bit[l,:]) # L,Nc, N_ant
             # Phase_TDD = torch.exp(1j*self.Phase_TDD[l,:]) # L,Nc, N_ant
             S_analog = torch.exp(1j*self.S_analog[l,:,:,:])/sqrt(self.M_ant)
             
@@ -475,11 +471,11 @@ class DL_BF_TTD(nn.Module):
         # Phi_phase2 = self.trans_RIS2(Phi_phase2)
 
         Phi_phase2 = self.sig(self.LN_RIS(Phi_phase2))
-        
+
         # min_value, min_index = torch.min(Phi_phase,1)
         # max_value, max_index = torch.max(Phi_phase,1)
 
-        # bit = 3
+        bit = param_list1[11]
         seg = (2*pi)/(2**bit)
 
         data_normalized1 = 2 * pi * Phi_phase
@@ -568,7 +564,7 @@ class DL_BF_TTD(nn.Module):
                 Phi_TDD = torch.kron(Phi_T[ba,:].reshape(1,self.RIS_TDDs),torch.ones(1,self.N_ant//self.RIS_TDDs).cuda())
                 Phi_WB[:,nc,:,:] = torch.diag_embed(Phi_phase*Phi_TDD*Phi_phase2).reshape(-1,self.N_ant,self.N_ant) 
             
-        
+
         F_BB = self.linear_BS_BB(x_init) # batch Nc 2*K*RF_chains
         F_BB = self.trans_BS_BB(F_BB)
         F_BB = self.LN_BS_BB(F_BB)
@@ -825,7 +821,33 @@ def NFWB_RIS_TTD(param_list,param_list1, batch,Num_batchs,model_name):
 
     # model_name1 = './models/RIS_NFWB_TTD_16BS_TTDs_64RIS_TTDs64pilots_10UdB20DdB.pth'
     # model = torch.load(model_name)
-            
+
+    ts = 1/2
+    TL = True
+    case1 = False  # the same network structure between pretraining and fine-tuning
+    case2 = False  # different network structures between pretraining and fine-tuning
+    if TL:
+        # pre_model_name = 'models/RIS_NFWB_TTD_debug_' + str(floor(B)) + 'band' + str(
+        #     floor(BS_TDDs)) + 'BS_TTDs_' +str(floor(RIS_TDDs))+'RIS_TTDs' + str(UL) + 'pilots_' + str(floor(upsnr)) + 'UdB' + str(
+        #     floor(downsnr)) + 'DdB' + '.pth'
+
+        pre_model_name = 'RIS_NFWB_TTD_debug_' + str(ts) + 'spacing' + '.mat' + str(floor(B)) + 'band' + str(
+            floor(BS_TDDs)) + 'BS_TTDs_' + str(floor(RIS_TDDs)) + 'RIS_TTDs' + str(UL) + 'pilots_' + str(
+            floor(upsnr)) + 'UdB' + str(floor(downsnr)) + 'DdB' + '.pth'
+
+        # state_dict in the target model
+        model_dict = model.state_dict()
+        # state_dict in the pretrained model
+        pre_dict = torch.load(pre_model_name).cuda()
+        # state_dict matching between target model and pretrained model
+        torch.save(pre_dict.state_dict(),'test.pth')
+        pre_dict = torch.load('test.pth')
+
+        pre_dict = {k: v for k, v in pre_dict.items() if k in model_dict}
+        # update state_dict
+        model_dict.update(pre_dict)
+        model.load_state_dict(model_dict)
+
     # optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()),lr=0.001)
     # optimizer = torch.optim.SGD(net_AE.parameters(), lr=0.0001, momentum=0.9, weight_decay=5e-4,nesterov=True)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001, eps=1e-07,weight_decay=1e-5)
@@ -866,7 +888,7 @@ def NFWB_RIS_TTD(param_list,param_list1, batch,Num_batchs,model_name):
     
     scaler = torch.cuda.amp.GradScaler()
     
-    Num_epochs = 10
+    Num_epochs = 1
     num_epoch = 0
     
     test_ESE = []
@@ -876,7 +898,7 @@ def NFWB_RIS_TTD(param_list,param_list1, batch,Num_batchs,model_name):
         start = datetime.datetime.now()
 
         
-        lr = adjust_learning_rate(optimizer, num_batch,5e-3,5e-5,Num_batchs//Num_epochs)
+        lr = adjust_learning_rate(optimizer, num_batch,5e-4,5e-5,Num_batchs//Num_epochs)
         
         model.train()
         
@@ -1063,16 +1085,21 @@ def NFWB_RIS_TTD_test(param_list,param_list1, batch,Num_batchs,model_name):
     Gr_gain = 10**(20/10.)
      
     flag =0
+
+    ts = 1 / 2
+    H_RU = torch.tensor(sio.loadmat('H_RU' + str(ts) + 'spacing' + str(math.floor(B)) + 'band' + '.mat')['H_RU']).cuda()
+    H_BU = torch.tensor(sio.loadmat('H_BU' + str(ts) + 'spacing' + str(math.floor(B)) + 'band' + '.mat')['H_BU']).cuda()
+    H_BR = torch.tensor(sio.loadmat('H_BR' + str(ts) + 'spacing' + str(math.floor(B)) + 'band' + '.mat')['H_BR']).cuda()
     
-    H_RU = torch.tensor(sio.loadmat('H_RU'+str(math.floor(B))+'band'+'.mat')['H_RU']).cuda()
-    H_BU = torch.tensor(sio.loadmat('H_BU'+str(math.floor(B))+'band'+'.mat')['H_BU']).cuda()
-    H_BR = torch.tensor(sio.loadmat('H_BR'+str(math.floor(B))+'band'+'.mat')['H_BR']).cuda()
+    # H_RU = torch.tensor(sio.loadmat('H_RU'+str(math.floor(B))+'band'+'.mat')['H_RU']).cuda()
+    # H_BU = torch.tensor(sio.loadmat('H_BU'+str(math.floor(B))+'band'+'.mat')['H_BU']).cuda()
+    # H_BR = torch.tensor(sio.loadmat('H_BR'+str(math.floor(B))+'band'+'.mat')['H_BR']).cuda()
     
     # batch = 100
     # H_RU1 = sqrt(Gr_gain*GRIS_gain)*(Channel_RIS_UE_MIMO_LOS(param_list,batch,flag)+Channel_RIS_UE_MIMO_NLOS(param_list,batch,flag))
     # H_BU = sqrt(Gt_gain*Gr_gain)*Channel_BS_UE_MIMO_NLOS(param_list,batch,flag)
-    # H_BU = H_BU.reshape(batch,K,Nc,Nr,M_ant) 
-    # H_RU = H_RU1.reshape(batch,K,Nc,Nr,N_ant) 
+    # H_BU = H_BU.reshape(batch,K,Nc,Nr,M_ant)
+    # H_RU = H_RU1.reshape(batch,K,Nc,Nr,N_ant)
     # H_BR = sqrt(Gt_gain*GRIS_gain)*(Channel_BS_RIS_LOS_PLA(param_list,flag)+Channel_BS_RIS_NLOS(param_list,flag))
     
     batchsize = 10
