@@ -6,7 +6,7 @@ We highly respect reproducible research, so we try to provide the simulation cod
   author={Wang, Ji and Xiao, Jian and Zou, Yixuan and Xie, Wenwu and Liu, Yuanwei},,<br/>
   journal={IEEE Transactions on Wireless Communications}, ,<br/>
   title={Wideband Beamforming for RIS Assisted Near-Field Communications}, ,<br/>
-  year={2024},,<br/>
+  year={2024},<br/>
   doi={10.1109/TWC.2024.3447570}}
 
 
