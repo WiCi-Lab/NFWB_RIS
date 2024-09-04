@@ -35,9 +35,9 @@ We highly respect reproducible research, so we try to provide the simulation cod
 ### Ackonwledge
 
 We are very grateful for the following open-source repositories, which help us construct the proposed beamforming model.<br/>
-1. DeLightCMU, https://github.com/DeLightCMU/PSA, 
-2. raoyongming, https://github.com/raoyongming/GFNet
-3. wuminghui123, https://github.com/wuminghui123/DL_RSMA
+1.  https://github.com/DeLightCMU/PSA, 
+2.  https://github.com/raoyongming/GFNet
+3.  https://github.com/wuminghui123/DL_RSMA
 
 The author in charge of this simulation code pacakge is: Jian Xiao (email: jianx@mails.ccnu.edu.cn). If you have any queries, please don’t hesitate to contact me.
 
