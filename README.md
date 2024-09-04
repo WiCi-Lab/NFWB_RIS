@@ -14,6 +14,16 @@ We highly respect reproducible research, so we try to provide the simulation cod
 
 How to use this simulation code package?
 
+ The deatailed description of each script is listed as follows.
+
+* main.py: the main function of the MTN model.<br/>
+* main_STN.py: the main function of the STN model.<br/>
+* MTN.py: the proposed multi-task network architecture.<br/>
+* STN.py: the proposed single-task network architecture.<br/>
+* MDSR.py: a baseline network architecture based on the MDSR model.<br/>
+* DRSN.py: a baseline network architecture based on the DRSN model.<br/>
+* Benchmarks.py: A preliminary version based on the Transformer model.<br/>
+
 ### 1.Data Generation and Download
 
 We have provided the paired samples in the following link, where the LS-based pre-estimation processing and data normalization have been completed.
