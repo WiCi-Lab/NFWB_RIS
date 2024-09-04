@@ -32,7 +32,7 @@ We highly respect reproducible research, so we try to provide the simulation cod
 5. Now, this codes are a preliminary version composed of a few redundant statements, we will try my best to release the clean codes and add the necessary annotations in the future.<br/>
 
 
-### Acknowledgement
+### Acknowledgements
 
 We are very grateful for the following open-source repositories, which help us construct the proposed beamforming model.<br/>
 1.  https://github.com/DeLightCMU/PSA <br/>
