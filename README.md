@@ -34,7 +34,7 @@ We highly respect reproducible research, so we try to provide the simulation cod
 
 ### Acknowledgements
 
-We are very grateful for the following open-source repositories, which help us construct the proposed beamforming model.<br/>
+We are very grateful for the following open-source repositories, which help us construct the beamforming model.<br/>
 1.  https://github.com/DeLightCMU/PSA <br/>
 2.  https://github.com/raoyongming/GFNet <br/>
 3.  https://github.com/wuminghui123/DL_RSMA <br/>
