@@ -28,7 +28,7 @@ We highly respect reproducible research, so we try to provide the simulation cod
 1. You can run the “main_RIS_WB_SNR.py” script to obtain the desired results by switching different beamforming models. <br/>
 2. You can run the "NFBF_RIS_R3.py" script to generate a common test dataset at first so that provides a fairness performance comparison among various schemes. In this case, the system parameters between "NFBF_RIS_R3.py" and “main_RIS_WB_SNR.py” scripts must be consistent.<br/>
 3. When you call the "RIS_SUB_DIR_MIMO_NFWB_SNR_R1.py" script for evaluating the beamforming performance under the case of discrete phase shift, you should pretrain an infinite beamforming model with the "RIS_SUB_DIR_MIMO_NFWB_SNR_R1.py" script at first. <br/>
-4. In the training stage, the different hyper-parameters setup will result in slight difference for final beamforming performance, e.g., the batchsize, the number of training epochs, and the training learning rate.<br/>
+4. In the training stage, the different hyper-parameters will result in slight difference for final beamforming performance, e.g., the batchsize, the number of training epochs, and the training learning rate.<br/>
 5. Now, this codes are a preliminary version composed of a few redundant statements, we will try my best to release the clean codes and add the necessary annotations in the future.<br/>
 
 
