@@ -38,7 +38,3 @@ We are very grateful for the following open-source repositories, which help us c
 1.  https://github.com/DeLightCMU/PSA <br/>
 2.  https://github.com/raoyongming/GFNet <br/>
 3.  https://github.com/wuminghui123/DL_RSMA <br/>
-
-The author in charge of this simulation code package is: Jian Xiao (email: jianx@mails.ccnu.edu.cn). If you have any queries, please don’t hesitate to contact me.
-
-Copyright reserved by the WiCi Lab, Department of Electronics and Information Engineering, Central China Normal University, Wuhan 430079, China.
